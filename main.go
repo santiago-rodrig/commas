@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
+	"unicode"
 )
 
 func main() {
@@ -31,10 +33,22 @@ func printHelpAndExit() {
 func commas(s string) string {
 	var b bytes.Buffer
 	var posFromRight int
-	n := len(s)
+	pointIndex := strings.LastIndex(s, ".")
+	signIndex := -1
 
-	for i, r := range s {
-		posFromRight = n - i - 1
+	if pointIndex == -1 {
+		pointIndex = len(s)
+	}
+
+	if !unicode.IsDigit(rune(s[0])) {
+		b.WriteByte(s[0])
+		signIndex = 0
+	}
+
+	strLen := len(s[signIndex+1 : pointIndex])
+
+	for i, r := range s[signIndex+1 : pointIndex] {
+		posFromRight = strLen - i - 1
 
 		if posFromRight%3 == 0 && posFromRight != 0 {
 			b.WriteRune(r)
@@ -42,6 +56,10 @@ func commas(s string) string {
 		} else {
 			b.WriteRune(r)
 		}
+	}
+
+	if pointIndex != len(s) {
+		b.WriteString(s[pointIndex:])
 	}
 
 	return b.String()
